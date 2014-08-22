@@ -49,3 +49,57 @@ struct mallinfo je_mallinfo() {
   mi.usmblks = mi.uordblks;
   return mi;
 }
+
+size_t __mallinfo_narenas() {
+  return narenas_auto;
+}
+
+size_t __mallinfo_nbins() {
+  return NBINS;
+}
+
+struct mallinfo __mallinfo_arena_info(size_t aidx) {
+  struct mallinfo mi;
+  memset(&mi, 0, sizeof(mi));
+
+  malloc_mutex_lock(&arenas_lock);
+  if (aidx < narenas_auto) {
+    if (arenas[aidx] != NULL) {
+      malloc_mutex_lock(&arenas[aidx]->lock);
+      mi.hblkhd = arenas[aidx]->stats.mapped;
+      mi.ordblks = arenas[aidx]->stats.allocated_large;
+      mi.uordblks = arenas[aidx]->stats.allocated_huge;
+      malloc_mutex_unlock(&arenas[aidx]->lock);
+
+      for (unsigned j = 0; j < NBINS; j++) {
+        arena_bin_t* bin = &arenas[aidx]->bins[j];
+
+        malloc_mutex_lock(&bin->lock);
+        mi.fsmblks += bin->stats.allocated;
+        malloc_mutex_unlock(&bin->lock);
+      }
+    }
+  }
+  malloc_mutex_unlock(&arenas_lock);
+  return mi;
+}
+
+struct mallinfo __mallinfo_bin_info(size_t aidx, size_t bidx) {
+  struct mallinfo mi;
+  memset(&mi, 0, sizeof(mi));
+
+  malloc_mutex_lock(&arenas_lock);
+  if (aidx < narenas_auto && bidx < NBINS) {
+    if (arenas[aidx] != NULL) {
+      arena_bin_t* bin = &arenas[aidx]->bins[bidx];
+
+      malloc_mutex_lock(&bin->lock);
+      mi.ordblks = bin->stats.allocated;
+      mi.uordblks = bin->stats.nmalloc;
+      mi.fordblks = bin->stats.ndalloc;
+      malloc_mutex_unlock(&bin->lock);
+    }
+  }
+  malloc_mutex_unlock(&arenas_lock);
+  return mi;
+}
