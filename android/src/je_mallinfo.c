@@ -46,7 +46,7 @@ struct mallinfo je_mallinfo() {
   }
   malloc_mutex_unlock(&arenas_lock);
   mi.fordblks = mi.hblkhd - mi.uordblks;
-  mi.usmblks = mi.uordblks;
+  mi.usmblks = mi.hblkhd;
   return mi;
 }
 
