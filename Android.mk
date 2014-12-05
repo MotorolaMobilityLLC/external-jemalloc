@@ -155,6 +155,7 @@ include $(BUILD_STATIC_LIBRARY)
 # jemalloc unit tests
 #-----------------------------------------------------------------------
 unit_tests := \
+	test/unit/atomic.c \
 	test/unit/bitmap.c \
 	test/unit/ckh.c \
 	test/unit/hash.c \
