@@ -22,7 +22,6 @@
 #  define xallocx jet_xallocx
 #  define sallocx jet_sallocx
 #  define dallocx jet_dallocx
-#  define sdallocx jet_sdallocx
 #  define nallocx jet_nallocx
 #  define mallctl jet_mallctl
 #  define mallctlnametomib jet_mallctlnametomib
@@ -54,7 +53,6 @@
 #  undef jet_xallocx
 #  undef jet_sallocx
 #  undef jet_dallocx
-#  undef jet_sdallocx
 #  undef jet_nallocx
 #  undef jet_mallctl
 #  undef jet_mallctlnametomib
