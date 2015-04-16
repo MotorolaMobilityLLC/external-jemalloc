@@ -37,11 +37,11 @@ LOCAL_SRC_FILES := \
 
 LOCAL_STATIC_LIBRARIES := \
 	$(test_libs) \
+
+LOCAL_SHARED_LIBRARIES := \
 	libc \
 	liblog \
 	libm \
-
-LOCAL_FORCE_STATIC_EXECUTABLE := true
 
 include $(BUILD_EXECUTABLE)
 test_name :=
