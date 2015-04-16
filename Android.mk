@@ -93,6 +93,7 @@ LOCAL_C_INCLUDES := \
 
 LOCAL_SRC_FILES := \
 	$(lib_src_files) \
+	android/src/je_mallinfo.c
 
 include $(BUILD_STATIC_LIBRARY)
 
@@ -119,17 +120,6 @@ LOCAL_SRC_FILES := \
 
 include $(BUILD_STATIC_LIBRARY)
 
-jemalloc_testlib_srcs := \
-	test/src/btalloc.c \
-	test/src/btalloc_0.c \
-	test/src/btalloc_1.c \
-	test/src/math.c \
-	test/src/mtx.c \
-	test/src/SFMT.c \
-	test/src/test.c \
-	test/src/thd.c \
-	test/src/timer.c \
-
 #-----------------------------------------------------------------------
 # jemalloc unit test library
 #-----------------------------------------------------------------------
@@ -150,7 +140,12 @@ LOCAL_C_INCLUDES := \
 	$(LOCAL_PATH)/test/src \
 	$(LOCAL_PATH)/test/include \
 
-LOCAL_SRC_FILES := $(jemalloc_testlib_srcs)
+LOCAL_SRC_FILES := \
+	test/src/math.c \
+	test/src/mtx.c \
+	test/src/SFMT.c \
+	test/src/test.c \
+	test/src/thd.c \
 
 LOCAL_WHOLE_STATIC_LIBRARIES := libjemalloc_jet
 
@@ -165,9 +160,6 @@ unit_tests := \
 	test/unit/ckh.c \
 	test/unit/hash.c \
 	test/unit/junk.c \
-	test/unit/junk_alloc.c \
-	test/unit/junk_free.c \
-	test/unit/lg_chunk.c \
 	test/unit/mallctl.c \
 	test/unit/math.c \
 	test/unit/mq.c \
@@ -175,8 +167,6 @@ unit_tests := \
 	test/unit/prof_accum.c \
 	test/unit/prof_gdump.c \
 	test/unit/prof_idump.c \
-	test/unit/prof_reset.c \
-	test/unit/prof_thread_name.c \
 	test/unit/ql.c \
 	test/unit/qr.c \
 	test/unit/quarantine.c \
@@ -217,7 +207,12 @@ LOCAL_C_INCLUDES := \
 	$(LOCAL_PATH)/test/src \
 	$(LOCAL_PATH)/test/include \
 
-LOCAL_SRC_FILES := $(jemalloc_testlib_srcs)
+LOCAL_SRC_FILES := \
+	test/src/math.c \
+	test/src/mtx.c \
+	test/src/SFMT.c \
+	test/src/test.c \
+	test/src/thd.c \
 
 LOCAL_WHOLE_STATIC_LIBRARIES := libjemalloc
 
@@ -229,7 +224,7 @@ include $(BUILD_STATIC_LIBRARY)
 integration_tests := \
 	test/integration/aligned_alloc.c \
 	test/integration/allocated.c \
-	test/integration/sdallocx.c \
+	test/integration/chunk.c \
 	test/integration/mallocx.c \
 	test/integration/MALLOCX_ARENA.c \
 	test/integration/posix_memalign.c \
@@ -237,7 +232,6 @@ integration_tests := \
 	test/integration/thread_arena.c \
 	test/integration/thread_tcache_enabled.c \
 	test/integration/xallocx.c \
-	test/integration/chunk.c \
 
 $(foreach test,$(integration_tests), \
   $(eval test_name := $(basename $(notdir $(test)))); \
