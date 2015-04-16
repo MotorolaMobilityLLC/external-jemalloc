@@ -53,7 +53,15 @@ pages_map(void *addr, size_t size)
 		/*
 		 * We succeeded in mapping memory, but not in the right place.
 		 */
-		pages_unmap(ret, size);
+		if (munmap(ret, size) == -1) {
+			char buf[BUFERROR_BUF];
+
+			buferror(get_errno(), buf, sizeof(buf));
+			malloc_printf("<jemalloc: Error in munmap(): %s\n",
+			    buf);
+			if (opt_abort)
+				abort();
+		}
 		ret = NULL;
 	}
 #endif
@@ -144,7 +152,7 @@ pages_purge(void *addr, size_t length)
 #    error "No madvise(2) flag defined for purging unused dirty pages."
 #  endif
 	int err = madvise(addr, length, JEMALLOC_MADV_PURGE);
-	unzeroed = (!JEMALLOC_MADV_ZEROS || err != 0);
+	unzeroed = (JEMALLOC_MADV_ZEROS == false || err != 0);
 #  undef JEMALLOC_MADV_PURGE
 #  undef JEMALLOC_MADV_ZEROS
 #else
@@ -221,5 +229,5 @@ chunk_dalloc_mmap(void *chunk, size_t size)
 	if (config_munmap)
 		pages_unmap(chunk, size);
 
-	return (!config_munmap);
+	return (config_munmap == false);
 }
