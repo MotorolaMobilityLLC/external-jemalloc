@@ -79,10 +79,6 @@ lib_src_files := \
 #-----------------------------------------------------------------------
 include $(CLEAR_VARS)
 
-# Temporarily disable clang build for this project:
-#   mips and arm64 do not compile with clang
-LOCAL_CLANG := false
-
 LOCAL_MODULE := libjemalloc
 LOCAL_MODULE_TAGS := optional
 
