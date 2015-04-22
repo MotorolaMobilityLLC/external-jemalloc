@@ -1,7 +1,6 @@
 /*.gcov.*
 
-/autom4te.cache/
-
+/bin/jemalloc-config
 /bin/jemalloc.sh
 
 /config.stamp
@@ -14,6 +13,8 @@
 /doc/jemalloc.xml
 /doc/jemalloc.html
 /doc/jemalloc.3
+
+/jemalloc.pc
 
 /lib/
 
