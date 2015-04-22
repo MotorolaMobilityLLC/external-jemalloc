@@ -22,10 +22,18 @@ UNIT_TESTS=( \
   "ckh" \
   "hash" \
   "junk" \
+  "junk_alloc" \
+  "junk_free" \
+  "lg_chunk" \
   "mallctl" \
   "math" \
   "mq" \
   "mtx" \
+  "prof_accum" \
+  "prof_gdump" \
+  "prof_idump" \
+  "prof_reset" \
+  "prof_thread_name" \
   "ql" \
   "qr" \
   "quarantine" \
@@ -43,7 +51,7 @@ INTEGRATION_TEST_DIR="jemalloc_integrationtests"
 INTEGRATION_TESTS=( \
   "aligned_alloc" \
   "allocated" \
-  "chunk" \
+  "sdallocx" \
   "mallocx" \
   "MALLOCX_ARENA" \
   "posix_memalign" \
@@ -51,6 +59,7 @@ INTEGRATION_TESTS=( \
   "thread_arena" \
   "thread_tcache_enabled" \
   "xallocx" \
+  "chunk" \
 )
 
 TEST_DIRECTORIES=( "/data/nativetest" "/data/nativetest64" )
