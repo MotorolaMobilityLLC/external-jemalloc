@@ -81,7 +81,8 @@ include $(CLEAR_VARS)
 
 # Temporarily disable clang build for this project:
 #   mips and arm64 do not compile with clang
-LOCAL_CLANG := false
+LOCAL_CLANG_arm64 := false
+LOCAL_CLANG_mips := false
 
 LOCAL_MODULE := libjemalloc
 LOCAL_MODULE_TAGS := optional
@@ -104,6 +105,9 @@ include $(BUILD_STATIC_LIBRARY)
 # jemalloc static jet library
 #-----------------------------------------------------------------------
 include $(CLEAR_VARS)
+
+LOCAL_CLANG_arm64 := false
+LOCAL_CLANG_mips := false
 
 LOCAL_MODULE := libjemalloc_jet
 LOCAL_MODULE_TAGS := optional
@@ -138,6 +142,9 @@ jemalloc_testlib_srcs := \
 # jemalloc unit test library
 #-----------------------------------------------------------------------
 include $(CLEAR_VARS)
+
+LOCAL_CLANG_arm64 := false
+LOCAL_CLANG_mips := false
 
 LOCAL_MODULE := libjemalloc_unittest
 LOCAL_MODULE_TAGS := optional
@@ -205,6 +212,9 @@ $(foreach test,$(unit_tests), \
 # jemalloc integration test library
 #-----------------------------------------------------------------------
 include $(CLEAR_VARS)
+
+LOCAL_CLANG_arm64 := false
+LOCAL_CLANG_mips := false
 
 LOCAL_MODULE := libjemalloc_integrationtest
 LOCAL_MODULE_TAGS := optional
