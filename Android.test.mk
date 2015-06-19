@@ -21,15 +21,14 @@ LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE_PATH := $(TARGET_OUT_DATA_NATIVE_TESTS)/$(test_path)
 
 LOCAL_ADDITIONAL_DEPENDENCIES := \
-	$(LOCAL_PATH)/Android.test.mk \
+	$(LOCAL_PATH)/Android.mk \
 
 LOCAL_CFLAGS := \
-	$(jemalloc_common_cflags) \
+	$(common_cflags) \
 	$(test_cflags) \
-	-include $(LOCAL_PATH)/android/include/libc_logging.h \
 
 LOCAL_C_INCLUDES := \
-	$(jemalloc_common_c_includes) \
+	$(common_c_includes) \
 	$(LOCAL_PATH)/test/src \
 	$(LOCAL_PATH)/test/include \
 
