@@ -2356,11 +2356,6 @@ arena_dalloc_small(arena_t *arena, arena_chunk_t *chunk, void *ptr,
 {
 	arena_chunk_map_bits_t *bitselm;
 
-	/* Temporary workaround to avoid crashes. b/20296122. */
-	if (arena == NULL) {
-		return;
-	}
-        /* End of workaround. */
 	if (config_debug) {
 		/* arena_ptr_small_binind_get() does extra sanity checking. */
 		assert(arena_ptr_small_binind_get(ptr, arena_mapbits_get(chunk,
