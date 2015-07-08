@@ -646,8 +646,15 @@ arenas_cache_cleanup(tsd_t *tsd)
 	arena_t **arenas_cache;
 
 	arenas_cache = tsd_arenas_cache_get(tsd);
-	if (arenas_cache != NULL)
+	if (arenas_cache != NULL) {
+		/* ANDROID change */
+		/* Make sure that the arena cache cannot be reused. */
+		bool *arenas_cache_bypassp = tsd_arenas_cache_bypassp_get(tsd);
+		*arenas_cache_bypassp = true;
+		tsd_arenas_cache_set(tsd, NULL);
+		/* End ANDROID change */
 		a0dalloc(arenas_cache);
+	}
 }
 
 void
