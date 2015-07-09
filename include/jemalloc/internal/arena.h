@@ -1165,8 +1165,7 @@ arena_dalloc(tsd_t *tsd, void *ptr, tcache_t *tcache)
 #if defined(__ANDROID__)
 		/* Verify the ptr is actually in the chunk. */
 		if (unlikely(pageind < map_bias || pageind >= chunk_npages)) {
-			__libc_fatal_no_abort("Invalid address %p passed to free: invalid page index", ptr);
-			return;
+			__libc_fatal("Invalid address %p passed to free: invalid page index", ptr);
 		}
 #endif
 		mapbits = arena_mapbits_get(chunk, pageind);
