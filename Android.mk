@@ -197,6 +197,7 @@ jemalloc_unit_tests := \
 	test/unit/rb.c \
 	test/unit/rtree.c \
 	test/unit/SFMT.c \
+	test/unit/size_classes.c \
 	test/unit/stats.c \
 	test/unit/tsd.c \
 	test/unit/util.c \
