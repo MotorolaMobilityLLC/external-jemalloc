@@ -130,9 +130,8 @@ chunk_recycle(arena_t *arena, extent_tree_t *chunks_szad,
 		node = chunk_first_fit(arena, chunks_szad, chunks_ad,
 		    alloc_size);
 	}
-	/* ANDROID fix. */
-	if (node == NULL || extent_node_size_get(node) < size) {
-	/* End ANDROID fix. */
+	if (node == NULL || (new_addr != NULL && extent_node_size_get(node) <
+	    size)) {
 		malloc_mutex_unlock(&arena->chunks_mtx);
 		return (NULL);
 	}
