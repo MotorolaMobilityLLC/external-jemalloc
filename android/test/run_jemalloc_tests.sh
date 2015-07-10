@@ -40,6 +40,7 @@ UNIT_TESTS=( \
   "rb" \
   "rtree" \
   "SFMT" \
+  "size_classes" \
   "stats" \
   "tsd" \
   "util" \
