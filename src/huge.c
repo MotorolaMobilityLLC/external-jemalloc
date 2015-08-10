@@ -66,7 +66,17 @@ huge_palloc(tsd_t *tsd, arena_t *arena, size_t usize, size_t alignment,
 	 * it is possible to make correct junk/zero fill decisions below.
 	 */
 	is_zeroed = zero;
+	/* ANDROID change */
+#if !defined(__LP64__)
+	/* On 32 bit systems, using a per arena cache can exhaust
+	 * virtual address space. Force all huge allocations to
+	 * always take place in the first arena.
+	 */
+	arena = a0get();
+#else
 	arena = arena_choose(tsd, arena);
+#endif
+	/* End ANDROID change */
 	if (unlikely(arena == NULL) || (ret = arena_chunk_alloc_huge(arena,
 	    usize, alignment, &is_zeroed)) == NULL) {
 		idalloctm(tsd, node, tcache, true);
