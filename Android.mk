@@ -39,12 +39,27 @@ jemalloc_common_cflags := \
 #     then large allocations will take longer to complete.
 #   ANDROID_LG_TCACHE_MAXCLASS_DEFAULT=XX
 #     1 << XX is the maximum sized allocation that will be in the tcache.
+#   ANDROID_LG_CHUNK_DEFAULT=XX
+#     1 << XX is the default chunk size used by the system. Decreasing this
+#     usually decreases the amount of PSS used, but can increase
+#     fragmentation.
 jemalloc_common_cflags += \
 	-DANDROID_ALWAYS_PURGE \
 	-DANDROID_MAX_ARENAS=2 \
 	-DANDROID_TCACHE_NSLOTS_SMALL_MAX=8 \
 	-DANDROID_TCACHE_NSLOTS_LARGE=16 \
 	-DANDROID_LG_TCACHE_MAXCLASS_DEFAULT=16 \
+
+# Use a 512K chunk size on 32 bit systems.
+# This keeps the total amount of virtual address space consumed
+# by jemalloc lower.
+jemalloc_common_cflags_32 += \
+	-DANDROID_LG_CHUNK_DEFAULT=19 \
+
+# Use a 2MB chunk size on 64 bit systems.
+# This is the default currently used by 4.0.0.
+jemalloc_common_cflags_64 += \
+	-DANDROID_LG_CHUNK_DEFAULT=21 \
 
 jemalloc_common_c_includes := \
 	$(LOCAL_PATH)/src \
@@ -66,6 +81,7 @@ jemalloc_lib_src_files := \
 	src/jemalloc.c \
 	src/mb.c \
 	src/mutex.c \
+	src/pages.c \
 	src/prof.c \
 	src/quarantine.c \
 	src/rtree.c \
@@ -88,6 +104,9 @@ LOCAL_ADDITIONAL_DEPENDENCIES := \
 LOCAL_CFLAGS := \
 	$(jemalloc_common_cflags) \
 	-include bionic/libc/private/libc_logging.h \
+
+LOCAL_CFLAGS_32 := $(jemalloc_common_cflags_32)
+LOCAL_CFLAGS_64 := $(jemalloc_common_cflags_64)
 
 LOCAL_C_INCLUDES := \
 	$(jemalloc_common_c_includes) \
@@ -116,6 +135,9 @@ LOCAL_CFLAGS := \
 	-DJEMALLOC_JET \
 	-include $(LOCAL_PATH)/android/include/libc_logging.h \
 
+LOCAL_CFLAGS_32 := $(jemalloc_common_cflags_32)
+LOCAL_CFLAGS_64 := $(jemalloc_common_cflags_64)
+
 LOCAL_C_INCLUDES := \
 	$(jemalloc_common_c_includes) \
 
@@ -129,6 +151,7 @@ jemalloc_testlib_srcs := \
 	test/src/btalloc_0.c \
 	test/src/btalloc_1.c \
 	test/src/math.c \
+	test/src/mq.c \
 	test/src/mtx.c \
 	test/src/SFMT.c \
 	test/src/test.c \
@@ -151,6 +174,9 @@ LOCAL_CFLAGS := \
 	-DJEMALLOC_UNIT_TEST \
 	-include $(LOCAL_PATH)/android/include/libc_logging.h \
 
+LOCAL_CFLAGS_32 := $(jemalloc_common_cflags_32)
+LOCAL_CFLAGS_64 := $(jemalloc_common_cflags_64)
+
 LOCAL_C_INCLUDES := \
 	$(jemalloc_common_c_includes) \
 	$(LOCAL_PATH)/test/src \
@@ -161,6 +187,7 @@ LOCAL_SRC_FILES := $(jemalloc_testlib_srcs)
 LOCAL_WHOLE_STATIC_LIBRARIES := libjemalloc_jet
 
 include $(BUILD_STATIC_LIBRARY)
+#include $(BUILD_SHARED_LIBRARY)
 
 #-----------------------------------------------------------------------
 # jemalloc unit tests
@@ -179,6 +206,7 @@ jemalloc_unit_tests := \
 	test/unit/mq.c \
 	test/unit/mtx.c \
 	test/unit/prof_accum.c \
+	test/unit/prof_active.c \
 	test/unit/prof_gdump.c \
 	test/unit/prof_idump.c \
 	test/unit/prof_reset.c \
@@ -220,6 +248,9 @@ LOCAL_CFLAGS := \
 	-DJEMALLOC_INTEGRATION_TEST \
 	-include $(LOCAL_PATH)/android/include/libc_logging.h \
 
+LOCAL_CFLAGS_32 := $(jemalloc_common_cflags_32)
+LOCAL_CFLAGS_64 := $(jemalloc_common_cflags_64)
+
 LOCAL_C_INCLUDES := \
 	$(jemalloc_common_c_includes) \
 	$(LOCAL_PATH)/test/src \
@@ -237,15 +268,16 @@ include $(BUILD_STATIC_LIBRARY)
 jemalloc_integration_tests := \
 	test/integration/aligned_alloc.c \
 	test/integration/allocated.c \
-	test/integration/sdallocx.c \
-	test/integration/mallocx.c \
+	test/integration/chunk.c \
 	test/integration/MALLOCX_ARENA.c \
+	test/integration/mallocx.c \
+	test/integration/overflow.c \
 	test/integration/posix_memalign.c \
 	test/integration/rallocx.c \
+	test/integration/sdallocx.c \
 	test/integration/thread_arena.c \
 	test/integration/thread_tcache_enabled.c \
 	test/integration/xallocx.c \
-	test/integration/chunk.c \
 
 $(foreach test,$(jemalloc_integration_tests), \
   $(eval test_name := $(basename $(notdir $(test)))); \
