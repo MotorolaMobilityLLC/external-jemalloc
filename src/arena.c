@@ -1207,10 +1207,13 @@ arena_lg_dirty_mult_set(arena_t *arena, ssize_t lg_dirty_mult)
 void
 arena_maybe_purge(arena_t *arena)
 {
-
+#if defined(ANDROID_ALWAYS_PURGE)
+	size_t num_tries = 0;
+#else
 	/* Don't purge if the option is disabled. */
 	if (arena->lg_dirty_mult < 0)
 		return;
+#endif
 	/* Don't recursively purge. */
 	if (arena->purging)
 		return;
@@ -1219,6 +1222,10 @@ arena_maybe_purge(arena_t *arena)
 	 * many dirty pages.
 	 */
 	while (true) {
+#if defined(ANDROID_ALWAYS_PURGE)
+		if (arena->ndirty == 0 || ++num_tries == 3)
+			return;
+#else
 		size_t threshold = (arena->nactive >> arena->lg_dirty_mult);
 		if (threshold < chunk_npages)
 			threshold = chunk_npages;
@@ -1228,6 +1235,7 @@ arena_maybe_purge(arena_t *arena)
 		 */
 		if (arena->ndirty <= threshold)
 			return;
+#endif
 		arena_purge(arena, false);
 	}
 }
