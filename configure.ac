@@ -258,6 +258,7 @@ dnl Define cpp macros in CPPFLAGS, rather than doing AC_DEFINE(macro), since the
 dnl definitions need to be seen before any headers are included, which is a pain
 dnl to make happen otherwise.
 default_munmap="1"
+maps_coalesce="1"
 case "${host}" in
   *-*-darwin* | *-*-ios*)
 	CFLAGS="$CFLAGS"
@@ -295,6 +296,7 @@ case "${host}" in
 	AC_DEFINE([JEMALLOC_HAS_ALLOCA_H])
 	AC_DEFINE([JEMALLOC_PURGE_MADVISE_DONTNEED], [ ])
 	AC_DEFINE([JEMALLOC_THREADED_INIT], [ ])
+	AC_DEFINE([JEMALLOC_USE_CXX_THROW], [ ])
 	default_munmap="0"
 	;;
   *-*-netbsd*)
@@ -333,6 +335,8 @@ case "${host}" in
   *-*-mingw* | *-*-cygwin*)
 	abi="pecoff"
 	force_tls="0"
+	force_lazy_lock="1"
+	maps_coalesce="0"
 	RPATH=""
 	so="dll"
 	if test "x$je_cv_msvc" = "xyes" ; then
@@ -421,6 +425,36 @@ if test "x${je_cv_tls_model}" = "xyes" ; then
 else
   AC_DEFINE([JEMALLOC_TLS_MODEL], [ ])
 fi
+dnl Check for alloc_size attribute support.
+SAVED_CFLAGS="${CFLAGS}"
+JE_CFLAGS_APPEND([-Werror])
+JE_COMPILABLE([alloc_size attribute], [#include <stdlib.h>],
+              [void *foo(size_t size) __attribute__((alloc_size(1)));],
+              [je_cv_alloc_size])
+CFLAGS="${SAVED_CFLAGS}"
+if test "x${je_cv_alloc_size}" = "xyes" ; then
+  AC_DEFINE([JEMALLOC_HAVE_ATTR_ALLOC_SIZE], [ ])
+fi
+dnl Check for format(gnu_printf, ...) attribute support.
+SAVED_CFLAGS="${CFLAGS}"
+JE_CFLAGS_APPEND([-Werror])
+JE_COMPILABLE([format(gnu_printf, ...) attribute], [#include <stdlib.h>],
+              [void *foo(const char *format, ...) __attribute__((format(gnu_printf, 1, 2)));],
+              [je_cv_format_gnu_printf])
+CFLAGS="${SAVED_CFLAGS}"
+if test "x${je_cv_format_gnu_printf}" = "xyes" ; then
+  AC_DEFINE([JEMALLOC_HAVE_ATTR_FORMAT_GNU_PRINTF], [ ])
+fi
+dnl Check for format(printf, ...) attribute support.
+SAVED_CFLAGS="${CFLAGS}"
+JE_CFLAGS_APPEND([-Werror])
+JE_COMPILABLE([format(printf, ...) attribute], [#include <stdlib.h>],
+              [void *foo(const char *format, ...) __attribute__((format(printf, 1, 2)));],
+              [je_cv_format_printf])
+CFLAGS="${SAVED_CFLAGS}"
+if test "x${je_cv_format_printf}" = "xyes" ; then
+  AC_DEFINE([JEMALLOC_HAVE_ATTR_FORMAT_PRINTF], [ ])
+fi
 
 dnl Support optional additions to rpath.
 AC_ARG_WITH([rpath],
@@ -507,6 +541,7 @@ if test "x$JEMALLOC_PREFIX" != "x" ; then
   AC_DEFINE_UNQUOTED([JEMALLOC_PREFIX], ["$JEMALLOC_PREFIX"])
   AC_DEFINE_UNQUOTED([JEMALLOC_CPREFIX], ["$JEMALLOC_CPREFIX"])
 fi
+AC_SUBST([JEMALLOC_CPREFIX])
 
 AC_ARG_WITH([export],
   [AS_HELP_STRING([--without-export], [disable exporting jemalloc public APIs])],
@@ -822,6 +857,12 @@ if test "x$enable_tcache" = "x1" ; then
   AC_DEFINE([JEMALLOC_TCACHE], [ ])
 fi
 AC_SUBST([enable_tcache])
+
+dnl Indicate whether adjacent virtual memory mappings automatically coalesce
+dnl (and fragment on demand).
+if test "x${maps_coalesce}" = "x1" ; then
+  AC_DEFINE([JEMALLOC_MAPS_COALESCE], [ ])
+fi
 
 dnl Enable VM deallocation via munmap() by default.
 AC_ARG_ENABLE([munmap],
@@ -1195,9 +1236,9 @@ else
   enable_lazy_lock="1"
 fi
 ],
-[enable_lazy_lock="0"]
+[enable_lazy_lock=""]
 )
-if test "x$enable_lazy_lock" = "x0" -a "x${force_lazy_lock}" = "x1" ; then
+if test "x$enable_lazy_lock" = "x" -a "x${force_lazy_lock}" = "x1" ; then
   AC_MSG_RESULT([Forcing lazy-lock to avoid allocator/threading bootstrap issues])
   enable_lazy_lock="1"
 fi
@@ -1210,6 +1251,8 @@ if test "x$enable_lazy_lock" = "x1" ; then
       ])
   fi
   AC_DEFINE([JEMALLOC_LAZY_LOCK], [ ])
+else
+  enable_lazy_lock="0"
 fi
 AC_SUBST([enable_lazy_lock])
 
@@ -1221,15 +1264,18 @@ else
   enable_tls="1"
 fi
 ,
-enable_tls="1"
+enable_tls=""
 )
-if test "x${enable_tls}" = "x0" -a "x${force_tls}" = "x1" ; then
-  AC_MSG_RESULT([Forcing TLS to avoid allocator/threading bootstrap issues])
-  enable_tls="1"
-fi
-if test "x${enable_tls}" = "x1" -a "x${force_tls}" = "x0" ; then
-  AC_MSG_RESULT([Forcing no TLS to avoid allocator/threading bootstrap issues])
-  enable_tls="0"
+if test "x${enable_tls}" = "x" ; then
+  if test "x${force_tls}" = "x1" ; then
+    AC_MSG_RESULT([Forcing TLS to avoid allocator/threading bootstrap issues])
+    enable_tls="1"
+  elif test "x${force_tls}" = "x0" ; then
+    AC_MSG_RESULT([Forcing no TLS to avoid allocator/threading bootstrap issues])
+    enable_tls="0"
+  else
+    enable_tls="1"
+  fi
 fi
 if test "x${enable_tls}" = "x1" ; then
 AC_MSG_CHECKING([for TLS])
@@ -1244,12 +1290,17 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM(
               AC_MSG_RESULT([yes]),
               AC_MSG_RESULT([no])
               enable_tls="0")
+else
+  enable_tls="0"
 fi
 AC_SUBST([enable_tls])
 if test "x${enable_tls}" = "x1" ; then
+  if test "x${force_tls}" = "x0" ; then
+    AC_MSG_WARN([TLS enabled despite being marked unusable on this platform])
+  fi
   AC_DEFINE_UNQUOTED([JEMALLOC_TLS], [ ])
 elif test "x${force_tls}" = "x1" ; then
-  AC_MSG_ERROR([Failed to configure TLS, which is mandatory for correct function])
+  AC_MSG_WARN([TLS disabled despite being marked critical on this platform])
 fi
 
 dnl ============================================================================
