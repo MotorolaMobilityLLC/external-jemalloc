@@ -864,7 +864,11 @@ malloc_conf_init(void)
 			opt_tcache = false;
 	}
 
+#if defined(__ANDROID__)
+	for (i = 0; i < 1; i++) {
+#else
 	for (i = 0; i < 3; i++) {
+#endif
 		/* Get runtime configuration. */
 		switch (i) {
 		case 0:
@@ -1278,6 +1282,14 @@ malloc_init_hard_finish(void)
 		else
 			opt_narenas = 1;
 	}
+#if defined(ANDROID_MAX_ARENAS)
+	/* Never create more than MAX_ARENAS arenas regardless of num_cpus.
+	 * Extra arenas use more PSS and are not very useful unless
+	 * lots of threads are allocing/freeing at the same time.
+	 */
+	if (opt_narenas > ANDROID_MAX_ARENAS)
+		opt_narenas = ANDROID_MAX_ARENAS;
+#endif
 	narenas_auto = opt_narenas;
 	/*
 	 * Make sure that the arenas array can be allocated.  In practice, this
@@ -2593,3 +2605,7 @@ jemalloc_postfork_child(void)
 }
 
 /******************************************************************************/
+
+/* ANDROID extension */
+#include "android_je_mallinfo.c"
+/* End ANDROID extension */
