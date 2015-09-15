@@ -28,7 +28,7 @@
 #endif
 
 /* Defined if C11 atomics are available. */
-#define JEMALLOC_C11ATOMICS
+#define JEMALLOC_C11ATOMICS 
 
 /* Defined if the equivalent of FreeBSD's atomic(9) functions are available. */
 /* #undef JEMALLOC_ATOMIC9 */
@@ -175,6 +175,15 @@
 #define LG_PAGE 12
 
 /*
+ * If defined, adjacent virtual memory mappings with identical attributes
+ * automatically coalesce, and they fragment when changes are made to subranges.
+ * This is the normal order of things for mmap()/munmap(), but on Windows
+ * VirtualAlloc()/VirtualFree() operations must be precisely matched, i.e.
+ * mappings do *not* coalesce/fragment.
+ */
+#define JEMALLOC_MAPS_COALESCE 
+
+/*
  * If defined, use munmap() to unmap freed chunks, rather than storing them for
  * later reuse.  This is disabled by default on Linux because common sequences
  * of mmap()/munmap() calls will cause virtual memory map holes.
@@ -201,7 +210,7 @@
  * If defined, explicitly attempt to more uniformly distribute large allocation
  * pointer alignments across all cache indices.
  */
-/* #undef JEMALLOC_CACHE_OBLIVIOUS */
+#define JEMALLOC_CACHE_OBLIVIOUS 
 
 /*
  * Darwin (OS X) uses zones to work around Mach-O symbol override shortcomings.
