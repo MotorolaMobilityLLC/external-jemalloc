@@ -8,7 +8,7 @@ extern "C" {
 #define	JEMALLOC_HAVE_ATTR
 
 /* Defined if alloc_size attribute is supported. */
-#define	JEMALLOC_HAVE_ATTR_ALLOC_SIZE
+/* #undef	JEMALLOC_HAVE_ATTR_ALLOC_SIZE */
 
 /* Defined if format(gnu_printf, ...) attribute is supported. */
 #define	JEMALLOC_HAVE_ATTR_FORMAT_GNU_PRINTF
