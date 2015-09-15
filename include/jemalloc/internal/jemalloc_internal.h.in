@@ -70,6 +70,13 @@ static const bool config_prof_libunwind =
     false
 #endif
     ;
+static const bool maps_coalesce =
+#ifdef JEMALLOC_MAPS_COALESCE
+    true
+#else
+    false
+#endif
+    ;
 static const bool config_munmap =
 #ifdef JEMALLOC_MUNMAP
     true
@@ -177,7 +184,7 @@ static const bool config_cache_oblivious =
 #include "jemalloc/internal/jemalloc_internal_macros.h"
 
 /* Size class index type. */
-typedef unsigned index_t;
+typedef unsigned szind_t;
 
 /*
  * Flags bits:
@@ -360,6 +367,7 @@ typedef unsigned index_t;
 #include "jemalloc/internal/bitmap.h"
 #include "jemalloc/internal/base.h"
 #include "jemalloc/internal/rtree.h"
+#include "jemalloc/internal/pages.h"
 #include "jemalloc/internal/chunk.h"
 #include "jemalloc/internal/huge.h"
 #include "jemalloc/internal/tcache.h"
@@ -391,6 +399,7 @@ typedef unsigned index_t;
 #undef JEMALLOC_ARENA_STRUCTS_B
 #include "jemalloc/internal/base.h"
 #include "jemalloc/internal/rtree.h"
+#include "jemalloc/internal/pages.h"
 #include "jemalloc/internal/chunk.h"
 #include "jemalloc/internal/huge.h"
 #include "jemalloc/internal/tcache.h"
@@ -470,6 +479,7 @@ void	jemalloc_postfork_child(void);
 #include "jemalloc/internal/arena.h"
 #include "jemalloc/internal/base.h"
 #include "jemalloc/internal/rtree.h"
+#include "jemalloc/internal/pages.h"
 #include "jemalloc/internal/chunk.h"
 #include "jemalloc/internal/huge.h"
 #include "jemalloc/internal/tcache.h"
@@ -496,16 +506,17 @@ void	jemalloc_postfork_child(void);
 #include "jemalloc/internal/extent.h"
 #include "jemalloc/internal/base.h"
 #include "jemalloc/internal/rtree.h"
+#include "jemalloc/internal/pages.h"
 #include "jemalloc/internal/chunk.h"
 #include "jemalloc/internal/huge.h"
 
 #ifndef JEMALLOC_ENABLE_INLINE
-index_t	size2index_compute(size_t size);
-index_t	size2index_lookup(size_t size);
-index_t	size2index(size_t size);
-size_t	index2size_compute(index_t index);
-size_t	index2size_lookup(index_t index);
-size_t	index2size(index_t index);
+szind_t	size2index_compute(size_t size);
+szind_t	size2index_lookup(size_t size);
+szind_t	size2index(size_t size);
+size_t	index2size_compute(szind_t index);
+size_t	index2size_lookup(szind_t index);
+size_t	index2size(szind_t index);
 size_t	s2u_compute(size_t size);
 size_t	s2u_lookup(size_t size);
 size_t	s2u(size_t size);
@@ -516,7 +527,7 @@ arena_t	*arena_get(tsd_t *tsd, unsigned ind, bool init_if_missing,
 #endif
 
 #if (defined(JEMALLOC_ENABLE_INLINE) || defined(JEMALLOC_C_))
-JEMALLOC_INLINE index_t
+JEMALLOC_INLINE szind_t
 size2index_compute(size_t size)
 {
 
@@ -525,7 +536,7 @@ size2index_compute(size_t size)
 		size_t lg_tmin = LG_TINY_MAXCLASS - NTBINS + 1;
 		size_t lg_ceil = lg_floor(pow2_ceil(size));
 		return (lg_ceil < lg_tmin ? 0 : lg_ceil - lg_tmin);
-	} else
+	}
 #endif
 	{
 		size_t x = unlikely(ZI(size) < 0) ? ((size<<1) ?
@@ -547,7 +558,7 @@ size2index_compute(size_t size)
 	}
 }
 
-JEMALLOC_ALWAYS_INLINE index_t
+JEMALLOC_ALWAYS_INLINE szind_t
 size2index_lookup(size_t size)
 {
 
@@ -560,25 +571,23 @@ size2index_lookup(size_t size)
 	}
 }
 
-JEMALLOC_ALWAYS_INLINE index_t
+JEMALLOC_ALWAYS_INLINE szind_t
 size2index(size_t size)
 {
 
 	assert(size > 0);
 	if (likely(size <= LOOKUP_MAXCLASS))
 		return (size2index_lookup(size));
-	else
-		return (size2index_compute(size));
+	return (size2index_compute(size));
 }
 
 JEMALLOC_INLINE size_t
-index2size_compute(index_t index)
+index2size_compute(szind_t index)
 {
 
 #if (NTBINS > 0)
 	if (index < NTBINS)
 		return (ZU(1) << (LG_TINY_MAXCLASS - NTBINS + 1 + index));
-	else
 #endif
 	{
 		size_t reduced_index = index - NTBINS;
@@ -600,7 +609,7 @@ index2size_compute(index_t index)
 }
 
 JEMALLOC_ALWAYS_INLINE size_t
-index2size_lookup(index_t index)
+index2size_lookup(szind_t index)
 {
 	size_t ret = (size_t)index2size_tab[index];
 	assert(ret == index2size_compute(index));
@@ -608,7 +617,7 @@ index2size_lookup(index_t index)
 }
 
 JEMALLOC_ALWAYS_INLINE size_t
-index2size(index_t index)
+index2size(szind_t index)
 {
 
 	assert(index < NSIZES);
@@ -625,7 +634,7 @@ s2u_compute(size_t size)
 		size_t lg_ceil = lg_floor(pow2_ceil(size));
 		return (lg_ceil < lg_tmin ? (ZU(1) << lg_tmin) :
 		    (ZU(1) << lg_ceil));
-	} else
+	}
 #endif
 	{
 		size_t x = unlikely(ZI(size) < 0) ? ((size<<1) ?
@@ -660,8 +669,7 @@ s2u(size_t size)
 	assert(size > 0);
 	if (likely(size <= LOOKUP_MAXCLASS))
 		return (s2u_lookup(size));
-	else
-		return (s2u_compute(size));
+	return (s2u_compute(size));
 }
 
 /*
@@ -711,7 +719,7 @@ sa2u(size_t size, size_t alignment)
 		 * Calculate the size of the over-size run that arena_palloc()
 		 * would need to allocate in order to guarantee the alignment.
 		 */
-		if (usize + alignment - PAGE <= arena_maxrun)
+		if (usize + large_pad + alignment - PAGE <= arena_maxrun)
 			return (usize);
 	}
 
@@ -968,7 +976,7 @@ u2rz(size_t usize)
 	size_t ret;
 
 	if (usize <= SMALL_MAXCLASS) {
-		index_t binind = size2index(usize);
+		szind_t binind = size2index(usize);
 		ret = arena_bin_info[binind].redzone_size;
 	} else
 		ret = 0;
