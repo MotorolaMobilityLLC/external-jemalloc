@@ -2,6 +2,17 @@
 #include "jemalloc/internal/jemalloc_internal.h"
 
 /******************************************************************************/
+/* Defines/includes needed for special android code. */
+
+#if defined(__ANDROID__)
+#include <sys/prctl.h>
+
+/* Definitions of prctl arguments to set a vma name in Android kernels. */
+#define ANDROID_PR_SET_VMA            0x53564d41
+#define ANDROID_PR_SET_VMA_ANON_NAME  0
+#endif
+
+/******************************************************************************/
 
 void *
 pages_map(void *addr, size_t size)
@@ -34,6 +45,13 @@ pages_map(void *addr, size_t size)
 		 */
 		pages_unmap(ret, size);
 		ret = NULL;
+	}
+#endif
+#if defined(__ANDROID__)
+	if (ret != NULL) {
+		/* Name this memory as being used by libc */
+		prctl(ANDROID_PR_SET_VMA, ANDROID_PR_SET_VMA_ANON_NAME, ret,
+		    size, "libc_malloc");
 	}
 #endif
 	assert(ret == NULL || (addr == NULL && ret != addr)
