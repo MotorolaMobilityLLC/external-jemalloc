@@ -98,9 +98,7 @@ lib_src_files = [
 // jemalloc static library
 //-----------------------------------------------------------------------
 cc_library_static {
-
     name: "libjemalloc",
-    tags: ["optional"],
 
     cflags: common_cflags,
 
@@ -126,9 +124,7 @@ cc_library_static {
 // jemalloc static jet library
 //-----------------------------------------------------------------------
 cc_library_static {
-
     name: "libjemalloc_jet",
-    tags: ["optional"],
 
     cflags: common_cflags + ["-DJEMALLOC_JET"],
 
@@ -141,7 +137,7 @@ cc_library_static {
         },
     },
 
-    include_files: ["bionic/libc/private/libc_logging.h"],
+    local_include_files: ["android/include/libc_logging.h"],
 
     local_include_dirs: common_c_local_includes,
 
@@ -166,9 +162,7 @@ jemalloc_testlib_srcs = [
 // jemalloc unit test library
 //-----------------------------------------------------------------------
 cc_library_static {
-
     name: "libjemalloc_unittest",
-    tags: ["optional"],
 
     cflags: common_cflags + ["-DJEMALLOC_UNIT_TEST"],
 
@@ -181,7 +175,7 @@ cc_library_static {
         },
     },
 
-    include_files: ["bionic/libc/private/libc_logging.h"],
+    local_include_files: ["android/include/libc_logging.h"],
 
     local_include_dirs: common_c_local_includes + [
         "test/src",
@@ -229,13 +223,38 @@ unit_tests = [
     "test/unit/zero.c",
 ]
 
+cc_binary {
+    name: "jemalloc_unittests",
+    // ANDROIDMK TRANSLATION ERROR: unsupported assignment to LOCAL_MODULE_PATH
+    // LOCAL_MODULE_PATH:=$(TARGET_OUT_DATA_NATIVE_TESTS)/jemalloc_unittests
+
+    cflags: common_cflags + ["-DJEMALLOC_UNIT_TEST"],
+
+    local_include_files: ["android/include/libc_logging.h"],
+
+    local_include_dirs: common_c_local_includes + [
+        "test/src",
+        "test/include",
+    ],
+
+    srcs: unit_tests,
+
+    static_libs: ["libjemalloc_unittest"],
+
+    shared_libs: [
+        "libc",
+        "liblog",
+        "libm",
+    ],
+
+    test_per_src: true,
+}
+
 //-----------------------------------------------------------------------
 // jemalloc integration test library
 //-----------------------------------------------------------------------
 cc_library_static {
-
     name: "libjemalloc_integrationtest",
-    tags: ["optional"],
 
     cflags: common_cflags + ["-DJEMALLOC_INTEGRATION_TEST"],
 
@@ -248,7 +267,7 @@ cc_library_static {
         },
     },
 
-    include_files: ["bionic/libc/private/libc_logging.h"],
+    local_include_files: ["android/include/libc_logging.h"],
 
     local_include_dirs: common_c_local_includes + [
         "test/src",
@@ -276,3 +295,31 @@ integration_tests = [
     "test/integration/thread_tcache_enabled.c",
     "test/integration/xallocx.c",
 ]
+
+cc_binary {
+
+    name: "jemalloc_integrationtests",
+    // ANDROIDMK TRANSLATION ERROR: unsupported assignment to LOCAL_MODULE_PATH
+    // LOCAL_MODULE_PATH:=$(TARGET_OUT_DATA_NATIVE_TESTS)/jemalloc_integrationtests
+
+    cflags: common_cflags + ["-DJEMALLOC_INTEGRATION_TEST"],
+
+    local_include_files: ["android/include/libc_logging.h"],
+
+    local_include_dirs: common_c_local_includes + [
+        "test/src",
+        "test/include",
+    ],
+
+    srcs: integration_tests,
+
+    static_libs: ["libjemalloc_integrationtest"],
+
+    shared_libs: [
+        "libc",
+        "liblog",
+        "libm",
+    ],
+
+    test_per_src: true,
+}
