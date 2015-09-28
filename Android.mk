@@ -223,10 +223,13 @@ jemalloc_unit_tests := \
 	test/unit/util.c \
 	test/unit/zero.c \
 
+# The latest clang update trips over test/unit/atomic.c and never finishes
+# compiling for aarch64 with -O3 (or -O2). Drop back to -O1 while we investigate
+# to stop punishing the build server.
 $(foreach test,$(jemalloc_unit_tests), \
   $(eval test_name := $(basename $(notdir $(test)))); \
   $(eval test_src := $(test)); \
-  $(eval test_cflags := -DJEMALLOC_UNIT_TEST); \
+  $(eval test_cflags := -DJEMALLOC_UNIT_TEST -O1); \
   $(eval test_libs := libjemalloc_unittest); \
   $(eval test_path := jemalloc_unittests); \
   $(eval include $(LOCAL_PATH)/Android.test.mk) \
