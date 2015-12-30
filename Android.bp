@@ -286,6 +286,7 @@ integration_tests = [
     "test/integration/aligned_alloc.c",
     "test/integration/allocated.c",
     "test/integration/chunk.c",
+    "test/integration/iterate.c",
     "test/integration/MALLOCX_ARENA.c",
     "test/integration/mallocx.c",
     "test/integration/overflow.c",
