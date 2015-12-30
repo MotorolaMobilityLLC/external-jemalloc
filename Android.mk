@@ -21,6 +21,7 @@ jemalloc_common_cflags := \
 	-D_REENTRANT \
 	-fvisibility=hidden \
 	-Wno-unused-parameter \
+	-Wno-type-limits \
 
 # These parameters change the way jemalloc works.
 #   ANDROID_ALWAYS_PURGE
