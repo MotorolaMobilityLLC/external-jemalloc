@@ -139,7 +139,8 @@
  * This makes it possible to allocate/deallocate objects without any locking
  * when the cache is in the steady state.
  */
-#define JEMALLOC_TCACHE 
+/* ANDROID: The tcache is enabled/disabled in the Makefile, not here. */
+/* #undef JEMALLOC_TCACHE */
 
 /*
  * JEMALLOC_DSS enables use of sbrk(2) to allocate chunks from the data storage
