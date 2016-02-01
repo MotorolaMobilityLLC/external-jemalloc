@@ -64,6 +64,3 @@ JEMALLOC_EXPORT JEMALLOC_ALLOCATOR JEMALLOC_RESTRICT_RETURN
     void JEMALLOC_NOTHROW	*je_valloc(size_t size) JEMALLOC_CXX_THROW
     JEMALLOC_ATTR(malloc);
 #endif
-
-typedef void *(chunk_alloc_t)(size_t, size_t, bool *, unsigned);
-typedef bool (chunk_dalloc_t)(void *, size_t, unsigned);

@@ -58,7 +58,6 @@
 #undef arena_mapbits_unallocated_size_get
 #undef arena_mapbits_unallocated_size_set
 #undef arena_mapbits_unzeroed_get
-#undef arena_maxclass
 #undef arena_maxrun
 #undef arena_maybe_purge
 #undef arena_metadata_allocated_add
@@ -81,6 +80,7 @@
 #undef arena_prof_accum_locked
 #undef arena_prof_promoted
 #undef arena_prof_tctx_get
+#undef arena_prof_tctx_reset
 #undef arena_prof_tctx_set
 #undef arena_ptr_small_binind_get
 #undef arena_purge_all
@@ -251,6 +251,7 @@
 #undef huge_malloc
 #undef huge_palloc
 #undef huge_prof_tctx_get
+#undef huge_prof_tctx_reset
 #undef huge_prof_tctx_set
 #undef huge_ralloc
 #undef huge_ralloc_no_move
@@ -285,6 +286,7 @@
 #undef jemalloc_postfork_child
 #undef jemalloc_postfork_parent
 #undef jemalloc_prefork
+#undef large_maxclass
 #undef lg_floor
 #undef malloc_cprintf
 #undef malloc_mutex_init
@@ -379,6 +381,7 @@
 #undef prof_sample_accum_update
 #undef prof_sample_threshold_update
 #undef prof_tctx_get
+#undef prof_tctx_reset
 #undef prof_tctx_set
 #undef prof_tdata_cleanup
 #undef prof_tdata_get
