@@ -86,12 +86,12 @@ extern "C" {
 #include <limits.h>
 #include <strings.h>
 
-#define	JEMALLOC_VERSION "4.0.0-165-g3d03eb8b8d0b2cd8f3f7ef39ec62ed9e42e2d3e3"
+#define	JEMALLOC_VERSION "4.0.4-16-gf459d5a2034e733eab74cc9b029dfec2ff13b196"
 #define	JEMALLOC_VERSION_MAJOR 4
 #define	JEMALLOC_VERSION_MINOR 0
-#define	JEMALLOC_VERSION_BUGFIX 0
-#define	JEMALLOC_VERSION_NREV 165
-#define	JEMALLOC_VERSION_GID "3d03eb8b8d0b2cd8f3f7ef39ec62ed9e42e2d3e3"
+#define	JEMALLOC_VERSION_BUGFIX 4
+#define	JEMALLOC_VERSION_NREV 16
+#define	JEMALLOC_VERSION_GID "f459d5a2034e733eab74cc9b029dfec2ff13b196"
 
 #  define MALLOCX_LG_ALIGN(la)	(la)
 #  if LG_SIZEOF_PTR == 2
@@ -118,32 +118,7 @@ extern "C" {
 #  define JEMALLOC_CXX_THROW
 #endif
 
-#ifdef JEMALLOC_HAVE_ATTR
-#  define JEMALLOC_ATTR(s) __attribute__((s))
-#  define JEMALLOC_ALIGNED(s) JEMALLOC_ATTR(aligned(s))
-#  ifdef JEMALLOC_HAVE_ATTR_ALLOC_SIZE
-#    define JEMALLOC_ALLOC_SIZE(s) JEMALLOC_ATTR(alloc_size(s))
-#    define JEMALLOC_ALLOC_SIZE2(s1, s2) JEMALLOC_ATTR(alloc_size(s1, s2))
-#  else
-#    define JEMALLOC_ALLOC_SIZE(s)
-#    define JEMALLOC_ALLOC_SIZE2(s1, s2)
-#  endif
-#  ifndef JEMALLOC_EXPORT
-#    define JEMALLOC_EXPORT JEMALLOC_ATTR(visibility("default"))
-#  endif
-#  ifdef JEMALLOC_HAVE_ATTR_FORMAT_GNU_PRINTF
-#    define JEMALLOC_FORMAT_PRINTF(s, i) JEMALLOC_ATTR(format(gnu_printf, s, i))
-#  elif defined(JEMALLOC_HAVE_ATTR_FORMAT_PRINTF)
-#    define JEMALLOC_FORMAT_PRINTF(s, i) JEMALLOC_ATTR(format(printf, s, i))
-#  else
-#    define JEMALLOC_FORMAT_PRINTF(s, i)
-#  endif
-#  define JEMALLOC_NOINLINE JEMALLOC_ATTR(noinline)
-#  define JEMALLOC_NOTHROW JEMALLOC_ATTR(nothrow)
-#  define JEMALLOC_SECTION(s) JEMALLOC_ATTR(section(s))
-#  define JEMALLOC_RESTRICT_RETURN
-#  define JEMALLOC_ALLOCATOR
-#elif _MSC_VER
+#if _MSC_VER
 #  define JEMALLOC_ATTR(s)
 #  define JEMALLOC_ALIGNED(s) __declspec(align(s))
 #  define JEMALLOC_ALLOC_SIZE(s)
@@ -169,6 +144,31 @@ extern "C" {
 #  else
 #    define JEMALLOC_ALLOCATOR
 #  endif
+#elif defined(JEMALLOC_HAVE_ATTR)
+#  define JEMALLOC_ATTR(s) __attribute__((s))
+#  define JEMALLOC_ALIGNED(s) JEMALLOC_ATTR(aligned(s))
+#  ifdef JEMALLOC_HAVE_ATTR_ALLOC_SIZE
+#    define JEMALLOC_ALLOC_SIZE(s) JEMALLOC_ATTR(alloc_size(s))
+#    define JEMALLOC_ALLOC_SIZE2(s1, s2) JEMALLOC_ATTR(alloc_size(s1, s2))
+#  else
+#    define JEMALLOC_ALLOC_SIZE(s)
+#    define JEMALLOC_ALLOC_SIZE2(s1, s2)
+#  endif
+#  ifndef JEMALLOC_EXPORT
+#    define JEMALLOC_EXPORT JEMALLOC_ATTR(visibility("default"))
+#  endif
+#  ifdef JEMALLOC_HAVE_ATTR_FORMAT_GNU_PRINTF
+#    define JEMALLOC_FORMAT_PRINTF(s, i) JEMALLOC_ATTR(format(gnu_printf, s, i))
+#  elif defined(JEMALLOC_HAVE_ATTR_FORMAT_PRINTF)
+#    define JEMALLOC_FORMAT_PRINTF(s, i) JEMALLOC_ATTR(format(printf, s, i))
+#  else
+#    define JEMALLOC_FORMAT_PRINTF(s, i)
+#  endif
+#  define JEMALLOC_NOINLINE JEMALLOC_ATTR(noinline)
+#  define JEMALLOC_NOTHROW JEMALLOC_ATTR(nothrow)
+#  define JEMALLOC_SECTION(s) JEMALLOC_ATTR(section(s))
+#  define JEMALLOC_RESTRICT_RETURN
+#  define JEMALLOC_ALLOCATOR
 #else
 #  define JEMALLOC_ATTR(s)
 #  define JEMALLOC_ALIGNED(s)
