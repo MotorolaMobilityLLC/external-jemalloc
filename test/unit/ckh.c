@@ -27,7 +27,9 @@ TEST_BEGIN(test_count_insert_search_remove)
 	    "a string.",
 	    "A string."
 	};
-	const char *missing = "A string not in the hash table.";
+	/* ANDROID change */
+	/* const char *missing = "A string not in the hash table."; */
+	/* End ANDROID change */
 	size_t i;
 
 	tsd = tsd_fetch();
@@ -69,8 +71,16 @@ TEST_BEGIN(test_count_insert_search_remove)
 		assert_ptr_eq((void *)vs, (void *)v.s, "Value mismatch, i=%zu",
 		    i);
 	}
-	assert_true(ckh_search(&ckh, missing, NULL, NULL),
-	    "Unexpected ckh_search() success");
+	/* ANDROID change */
+	{
+		/* The searchkey parameter must be 4 byte aligned. */
+		#define HASH_TABLE_STRING "A string not in the hash table."
+		union { char char_data[sizeof(HASH_TABLE_STRING)]; uint32_t uint_data; } missing;
+		memcpy(missing.char_data, HASH_TABLE_STRING, sizeof(HASH_TABLE_STRING));
+		assert_true(ckh_search(&ckh, missing.char_data, NULL, NULL),
+		    "Unexpected ckh_search() success");
+	}
+	/* End ANDROID change */
 
 	/* Remove. */
 	for (i = 0; i < sizeof(strs)/sizeof(const char *); i++) {
