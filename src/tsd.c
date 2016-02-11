@@ -81,6 +81,10 @@ tsd_cleanup(void *arg)
 		n##_cleanup(tsd);
 MALLOC_TSD
 #undef O
+		/* ANDROID change */
+		/* Free the arenas_cache if created during cleanup. */
+		arenas_cache_cleanup(tsd_get());
+		/* End ANDROID change */
 		tsd->state = tsd_state_purgatory;
 		tsd_set(tsd);
 		break;
