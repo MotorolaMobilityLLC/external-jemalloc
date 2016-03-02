@@ -51,23 +51,44 @@ common_cflags += [
     "-DANDROID_LG_TCACHE_MAXCLASS_DEFAULT=16",
 ]
 
-// Use a 512K chunk size on 32 bit systems.
-// This keeps the total amount of virtual address space consumed
-// by jemalloc lower.
-common_cflags_32 = [
-    "-DANDROID_LG_CHUNK_DEFAULT=19",
-]
-
-// Use a 2MB chunk size on 64 bit systems.
-// This is the default currently used by 4.0.0
-common_cflags_64 = [
-    "-DANDROID_LG_CHUNK_DEFAULT=21",
-]
-
 common_c_local_includes = [
     "src",
     "include",
 ]
+
+common_product_variables = {
+    // Only enable the tcache on non-svelte configurations, to save PSS.
+    malloc_not_svelte: {
+        cflags: ["-DJEMALLOC_TCACHE"],
+    },
+}
+
+cc_defaults {
+    name: "jemalloc_defaults",
+    cflags: common_cflags,
+
+    product_variables: common_product_variables,
+
+    multilib: {
+        lib32: {
+            // Use a 512K chunk size on 32 bit systems.
+            // This keeps the total amount of virtual address space consumed
+            // by jemalloc lower.
+            cflags: [
+                "-DANDROID_LG_CHUNK_DEFAULT=19",
+            ],
+        },
+        lib64: {
+            // Use a 2MB chunk size on 64 bit systems.
+            // This is the default currently used by 4.0.0
+            cflags: [
+                "-DANDROID_LG_CHUNK_DEFAULT=21",
+            ],
+        },
+    },
+
+    local_include_dirs: common_c_local_includes,
+}
 
 lib_src_files = [
     "src/arena.c",
@@ -101,20 +122,9 @@ lib_src_files = [
 cc_library_static {
     name: "libjemalloc",
 
-    cflags: common_cflags,
-
-    multilib: {
-        lib32: {
-            cflags: common_cflags_32,
-        },
-        lib64: {
-            cflags: common_cflags_64,
-        },
-    },
+    defaults: ["jemalloc_defaults"],
 
     include_files: ["bionic/libc/private/libc_logging.h"],
-
-    local_include_dirs: common_c_local_includes,
 
     srcs: lib_src_files,
 
@@ -127,20 +137,11 @@ cc_library_static {
 cc_library_static {
     name: "libjemalloc_jet",
 
-    cflags: common_cflags + ["-DJEMALLOC_JET"],
+    defaults: ["jemalloc_defaults"],
 
-    multilib: {
-        lib32: {
-            cflags: common_cflags_32,
-        },
-        lib64: {
-            cflags: common_cflags_64,
-        },
-    },
+    cflags: ["-DJEMALLOC_JET"],
 
     local_include_files: ["android/include/libc_logging.h"],
-
-    local_include_dirs: common_c_local_includes,
 
     srcs: lib_src_files,
 
@@ -165,20 +166,13 @@ jemalloc_testlib_srcs = [
 cc_library_static {
     name: "libjemalloc_unittest",
 
-    cflags: common_cflags + ["-DJEMALLOC_UNIT_TEST"],
+    defaults: ["jemalloc_defaults"],
 
-    multilib: {
-        lib32: {
-            cflags: common_cflags_32,
-        },
-        lib64: {
-            cflags: common_cflags_64,
-        },
-    },
+    cflags: ["-DJEMALLOC_UNIT_TEST"],
 
     local_include_files: ["android/include/libc_logging.h"],
 
-    local_include_dirs: common_c_local_includes + [
+    local_include_dirs: [
         "test/src",
         "test/include",
     ],
@@ -229,6 +223,8 @@ cc_test {
 
     gtest: false,
 
+    product_variables: common_product_variables,
+
     cflags: common_cflags + ["-DJEMALLOC_UNIT_TEST"],
 
     local_include_files: ["android/include/libc_logging.h"],
@@ -242,11 +238,7 @@ cc_test {
 
     static_libs: ["libjemalloc_unittest"],
 
-    shared_libs: [
-        "libc",
-        "liblog",
-        "libm",
-    ],
+    shared_libs: ["liblog"],
 
     test_per_src: true,
 }
@@ -257,20 +249,13 @@ cc_test {
 cc_library_static {
     name: "libjemalloc_integrationtest",
 
-    cflags: common_cflags + ["-DJEMALLOC_INTEGRATION_TEST"],
+    defaults: ["jemalloc_defaults"],
 
-    multilib: {
-        lib32: {
-            cflags: common_cflags_32,
-        },
-        lib64: {
-            cflags: common_cflags_64,
-        },
-    },
+    cflags: ["-DJEMALLOC_INTEGRATION_TEST"],
 
     local_include_files: ["android/include/libc_logging.h"],
 
-    local_include_dirs: common_c_local_includes + [
+    local_include_dirs: [
         "test/src",
         "test/include",
     ],
@@ -304,6 +289,8 @@ cc_test {
 
     gtest: false,
 
+    product_variables: common_product_variables,
+
     cflags: common_cflags + ["-DJEMALLOC_INTEGRATION_TEST"],
 
     local_include_files: ["android/include/libc_logging.h"],
@@ -317,11 +304,7 @@ cc_test {
 
     static_libs: ["libjemalloc_integrationtest"],
 
-    shared_libs: [
-        "libc",
-        "liblog",
-        "libm",
-    ],
+    shared_libs: ["liblog"],
 
     test_per_src: true,
 }
