@@ -20,6 +20,7 @@ UNIT_TESTS=( \
   "atomic" \
   "bitmap" \
   "ckh" \
+  "decay" \
   "hash" \
   "junk" \
   "junk_alloc" \
@@ -29,6 +30,8 @@ UNIT_TESTS=( \
   "math" \
   "mq" \
   "mtx" \
+  "nstime" \
+  "prng" \
   "prof_accum" \
   "prof_active" \
   "prof_gdump" \
@@ -40,9 +43,12 @@ UNIT_TESTS=( \
   "quarantine" \
   "rb" \
   "rtree" \
+  "run_quantize" \
   "SFMT" \
   "size_classes" \
+  "smoothstep" \
   "stats" \
+  "ticker" \
   "tsd" \
   "util" \
   "zero" \
