@@ -4,19 +4,20 @@
 #include <limits.h>
 #include <strings.h>
 
-#define	JEMALLOC_VERSION "4.0.4-16-gf459d5a2034e733eab74cc9b029dfec2ff13b196"
+#define	JEMALLOC_VERSION "4.1.0-4-g33184bf69813087bf1885b0993685f9d03320c69"
 #define	JEMALLOC_VERSION_MAJOR 4
-#define	JEMALLOC_VERSION_MINOR 0
-#define	JEMALLOC_VERSION_BUGFIX 4
-#define	JEMALLOC_VERSION_NREV 16
-#define	JEMALLOC_VERSION_GID "f459d5a2034e733eab74cc9b029dfec2ff13b196"
+#define	JEMALLOC_VERSION_MINOR 1
+#define	JEMALLOC_VERSION_BUGFIX 0
+#define	JEMALLOC_VERSION_NREV 4
+#define	JEMALLOC_VERSION_GID "33184bf69813087bf1885b0993685f9d03320c69"
 
-#  define MALLOCX_LG_ALIGN(la)	(la)
+#  define MALLOCX_LG_ALIGN(la)	((int)(la))
 #  if LG_SIZEOF_PTR == 2
-#    define MALLOCX_ALIGN(a)	(ffs(a)-1)
+#    define MALLOCX_ALIGN(a)	((int)(ffs(a)-1))
 #  else
 #    define MALLOCX_ALIGN(a)						\
-	 ((a < (size_t)INT_MAX) ? ffs(a)-1 : ffs(a>>32)+31)
+       ((int)(((a) < (size_t)INT_MAX) ? ffs((int)(a))-1 :		\
+       ffs((int)((a)>>32))+31))
 #  endif
 #  define MALLOCX_ZERO	((int)0x40)
 /*
