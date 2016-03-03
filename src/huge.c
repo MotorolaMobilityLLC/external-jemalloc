@@ -73,6 +73,7 @@ huge_palloc(tsd_t *tsd, arena_t *arena, size_t usize, size_t alignment,
 	 * virtual address space. Force all huge allocations to
 	 * always take place in the first arena.
 	 */
+	extern arena_t *a0get(void);
 	arena = a0get();
 #else
 	arena = arena_choose(tsd, arena);
