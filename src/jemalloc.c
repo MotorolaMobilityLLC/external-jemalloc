@@ -2732,6 +2732,12 @@ jemalloc_postfork_child(void)
 /******************************************************************************/
 
 /* ANDROID extension */
+arena_t * a0get(void)
+{
+	assert(a0 != NULL);
+	return (a0);
+}
+
 #include "android_je_iterate.c"
 #include "android_je_mallinfo.c"
 /* End ANDROID extension */
