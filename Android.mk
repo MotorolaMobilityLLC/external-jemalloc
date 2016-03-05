@@ -88,12 +88,15 @@ jemalloc_lib_src_files := \
 	src/jemalloc.c \
 	src/mb.c \
 	src/mutex.c \
+	src/nstime.c \
 	src/pages.c \
+	src/prng.c \
 	src/prof.c \
 	src/quarantine.c \
 	src/rtree.c \
 	src/stats.c \
 	src/tcache.c \
+	src/ticker.c \
 	src/tsd.c \
 	src/util.c \
 
@@ -203,6 +206,7 @@ jemalloc_unit_tests := \
 	test/unit/atomic.c \
 	test/unit/bitmap.c \
 	test/unit/ckh.c \
+	test/unit/decay.c \
 	test/unit/hash.c \
 	test/unit/junk.c \
 	test/unit/junk_alloc.c \
@@ -212,6 +216,8 @@ jemalloc_unit_tests := \
 	test/unit/math.c \
 	test/unit/mq.c \
 	test/unit/mtx.c \
+	test/unit/nstime.c \
+	test/unit/prng.c \
 	test/unit/prof_accum.c \
 	test/unit/prof_active.c \
 	test/unit/prof_gdump.c \
@@ -223,9 +229,12 @@ jemalloc_unit_tests := \
 	test/unit/quarantine.c \
 	test/unit/rb.c \
 	test/unit/rtree.c \
+	test/unit/run_quantize.c \
 	test/unit/SFMT.c \
 	test/unit/size_classes.c \
+	test/unit/smoothstep.c \
 	test/unit/stats.c \
+	test/unit/ticker.c \
 	test/unit/tsd.c \
 	test/unit/util.c \
 	test/unit/zero.c \
