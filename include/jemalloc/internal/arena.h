@@ -29,9 +29,14 @@ typedef enum {
 
 	purge_mode_limit = 2
 } purge_mode_t;
-#define	PURGE_DEFAULT		purge_mode_ratio
+/* ANDROID change */
+/* Use the decay mode purge method. By setting the DECAY_TIME_DEFAULT to
+ * zero, this forces all pages to be purged as soon as they are not in use.
+ */
+#define	PURGE_DEFAULT		purge_mode_decay
 /* Default decay time in seconds. */
-#define	DECAY_TIME_DEFAULT	10
+#define	DECAY_TIME_DEFAULT	0
+/* End ANDROID change */
 /* Number of event ticks between time checks. */
 #define	DECAY_NTICKS_PER_UPDATE	1000
 
