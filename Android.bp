@@ -88,6 +88,7 @@ cc_defaults {
     },
 
     local_include_dirs: common_c_local_includes,
+    stl: "none",
 }
 
 lib_src_files = [
@@ -131,7 +132,9 @@ cc_library_static {
 
     srcs: lib_src_files,
 
-    sanitize: ["never"],
+    sanitize: {
+        never: true,
+    },
 }
 
 //-----------------------------------------------------------------------
