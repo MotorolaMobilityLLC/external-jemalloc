@@ -127,6 +127,8 @@ LOCAL_SRC_FILES := \
 # This is linked into libc, which asan runtime library depends on.
 LOCAL_SANITIZE := never
 
+LOCAL_CXX_STL := none
+
 include $(BUILD_STATIC_LIBRARY)
 
 #-----------------------------------------------------------------------
@@ -153,6 +155,8 @@ LOCAL_C_INCLUDES := \
 
 LOCAL_SRC_FILES := \
 	$(jemalloc_lib_src_files) \
+
+LOCAL_CXX_STL := none
 
 include $(BUILD_STATIC_LIBRARY)
 
@@ -195,6 +199,8 @@ LOCAL_C_INCLUDES := \
 LOCAL_SRC_FILES := $(jemalloc_testlib_srcs)
 
 LOCAL_WHOLE_STATIC_LIBRARIES := libjemalloc_jet
+
+LOCAL_CXX_STL := none
 
 include $(BUILD_STATIC_LIBRARY)
 #include $(BUILD_SHARED_LIBRARY)
@@ -275,6 +281,8 @@ LOCAL_C_INCLUDES := \
 LOCAL_SRC_FILES := \
 	$(jemalloc_testlib_srcs) \
 	$(jemalloc_lib_src_files) \
+
+LOCAL_CXX_STL := none
 
 include $(BUILD_STATIC_LIBRARY)
 
