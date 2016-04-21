@@ -41,6 +41,7 @@ int je_iterate(uintptr_t base, size_t size,
   uintptr_t end = CHUNK_CEILING(base + size);
 
   while (ptr < end) {
+    assert(ptr == (uintptr_t)CHUNK_ADDR2BASE(ptr));
     extent_node_t *node;
 
     node = chunk_lookup((void *)ptr, false);
@@ -67,7 +68,7 @@ int je_iterate(uintptr_t base, size_t size,
     } else if ((uintptr_t)extent_node_addr_get(node) == ptr) {
       /* Huge allocation */
       callback(ptr, extent_node_size_get(node), arg);
-      ptr += extent_node_size_get(node);
+      ptr = CHUNK_CEILING(ptr + extent_node_size_get(node));
     }
   }
 
