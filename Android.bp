@@ -128,7 +128,7 @@ cc_library_static {
 
     defaults: ["jemalloc_defaults"],
 
-    include_files: ["bionic/libc/private/libc_logging.h"],
+    cflags: ["-include bionic/libc/private/libc_logging.h"],
 
     srcs: lib_src_files,
 
@@ -145,9 +145,10 @@ cc_library_static {
 
     defaults: ["jemalloc_defaults"],
 
-    cflags: ["-DJEMALLOC_JET"],
-
-    local_include_files: ["android/include/libc_logging.h"],
+    cflags: [
+        "-DJEMALLOC_JET",
+        "-include android/include/libc_logging.h",
+    ],
 
     srcs: lib_src_files,
 
@@ -174,9 +175,10 @@ cc_library_static {
 
     defaults: ["jemalloc_defaults"],
 
-    cflags: ["-DJEMALLOC_UNIT_TEST"],
-
-    local_include_files: ["android/include/libc_logging.h"],
+    cflags: [
+        "-DJEMALLOC_UNIT_TEST",
+        "-include android/include/libc_logging.h",
+    ],
 
     local_include_dirs: [
         "test/src",
@@ -237,9 +239,10 @@ cc_test {
 
     product_variables: common_product_variables,
 
-    cflags: common_cflags + ["-DJEMALLOC_UNIT_TEST"],
-
-    local_include_files: ["android/include/libc_logging.h"],
+    cflags: common_cflags + [
+        "-DJEMALLOC_UNIT_TEST",
+        "-include android/include/libc_logging.h",
+    ],
 
     local_include_dirs: common_c_local_includes + [
         "test/src",
@@ -263,9 +266,10 @@ cc_library_static {
 
     defaults: ["jemalloc_defaults"],
 
-    cflags: ["-DJEMALLOC_INTEGRATION_TEST"],
-
-    local_include_files: ["android/include/libc_logging.h"],
+    cflags: [
+        "-DJEMALLOC_INTEGRATION_TEST",
+        "-include android/include/libc_logging.h",
+    ],
 
     local_include_dirs: [
         "test/src",
@@ -303,9 +307,10 @@ cc_test {
 
     product_variables: common_product_variables,
 
-    cflags: common_cflags + ["-DJEMALLOC_INTEGRATION_TEST"],
-
-    local_include_files: ["android/include/libc_logging.h"],
+    cflags: common_cflags + [
+        "-DJEMALLOC_INTEGRATION_TEST",
+        "-include android/include/libc_logging.h",
+    ],
 
     local_include_dirs: common_c_local_includes + [
         "test/src",
