@@ -15,7 +15,6 @@
 //
 
 common_cflags = [
-    "-std=gnu99",
     "-D_REENTRANT",
     "-fvisibility=hidden",
     "-Wno-unused-parameter",
