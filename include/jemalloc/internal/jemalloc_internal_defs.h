@@ -77,7 +77,8 @@
 /* #undef JEMALLOC_OSSPIN */
 
 /* Defined if syscall(2) is available. */
-#define JEMALLOC_HAVE_SYSCALL 
+/* Syscalls are available in Android, but avoid them for security reasons. */
+/* #undef JEMALLOC_HAVE_SYSCALL */
 
 /*
  * Defined if secure_getenv(3) is available.
