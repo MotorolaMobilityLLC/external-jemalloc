@@ -136,10 +136,6 @@ cc_library_static {
     cflags: ["-include bionic/libc/private/libc_logging.h"],
 
     srcs: lib_src_files,
-
-    sanitize: {
-        never: true,
-    },
 }
 
 //-----------------------------------------------------------------------
