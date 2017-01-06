@@ -16,6 +16,8 @@
 
 common_cflags = [
     "-D_REENTRANT",
+    "-O3",
+    "-funroll-loops",
     "-fvisibility=hidden",
     "-Wno-unused-parameter",
     "-Wno-type-limits",
