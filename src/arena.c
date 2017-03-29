@@ -1442,7 +1442,7 @@ arena_maybe_purge_decay(arena_t *arena)
 	if (arena_decay_deadline_reached(arena, &time))
 		arena_decay_epoch_advance(arena, &time);
 
-	ndirty_limit = 0;
+	ndirty_limit = arena_decay_npages_limit(arena);
 
 	/*
 	 * Don't try to purge unless the number of purgeable pages exceeds the
