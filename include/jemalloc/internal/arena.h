@@ -30,13 +30,16 @@ typedef enum {
 	purge_mode_limit = 2
 } purge_mode_t;
 /* ANDROID change */
-/* Use the decay mode purge method. Do not set this value to zero, since
- * forcing a purge immediately affects performance negatively. Using a
- * small value provides a compromise between performance and extra PSS.
+/* Use the decay mode purge method.
+ * Setting this value to zero results in performance issues because it
+ * causes purges at every free. Leave the default at zero, but zygote
+ * processes will set this to one using mallopt. This allows apps which
+ * tend to be active to benefit from the extra performance, but allow system
+ * servers to free PSS while they are sitting idle.
  */
 #define	PURGE_DEFAULT		purge_mode_decay
 /* Default decay time in seconds. */
-#define	DECAY_TIME_DEFAULT	1
+#define	DECAY_TIME_DEFAULT	0
 /* End ANDROID change */
 /* Number of event ticks between time checks. */
 #define	DECAY_NTICKS_PER_UPDATE	1000
@@ -1439,7 +1442,7 @@ arena_dalloc(tsdn_t *tsdn, void *ptr, tcache_t *tcache, bool slow_path)
 #if defined(__ANDROID__)
 		/* Verify the ptr is actually in the chunk. */
 		if (unlikely(pageind < map_bias || pageind >= chunk_npages)) {
-		    __libc_fatal("Invalid address %p passed to free: invalid page index", ptr);
+		    async_safe_fatal("Invalid address %p passed to free: invalid page index", ptr);
 		}
 #endif
 		mapbits = arena_mapbits_get(chunk, pageind);
@@ -1447,7 +1450,7 @@ arena_dalloc(tsdn_t *tsdn, void *ptr, tcache_t *tcache, bool slow_path)
 #if defined(__ANDROID__)
 		/* Verify the ptr has been allocated. */
 		if (unlikely((mapbits & CHUNK_MAP_ALLOCATED) == 0)) {
-		    __libc_fatal("Invalid address %p passed to free: value not allocated", ptr);
+		    async_safe_fatal("Invalid address %p passed to free: value not allocated", ptr);
 		}
 #endif
 		if (likely((mapbits & CHUNK_MAP_LARGE) == 0)) {
