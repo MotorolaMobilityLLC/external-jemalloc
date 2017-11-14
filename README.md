@@ -1,2 +1,0 @@
-# external-jemalloc
-Motorola jemalloc
