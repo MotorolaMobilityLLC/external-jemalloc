@@ -744,6 +744,7 @@ index2size_compute(szind_t index)
 JEMALLOC_ALWAYS_INLINE size_t
 index2size_lookup(szind_t index)
 {
+	assert(index < NSIZES);//lenovo-sw yelw1,20180308,avoid out of array
 	size_t ret = (size_t)index2size_tab[index];
 	assert(ret == index2size_compute(index));
 	return (ret);
