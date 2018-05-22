@@ -134,6 +134,7 @@ lib_src_files = [
 //-----------------------------------------------------------------------
 cc_library_static {
     name: "libjemalloc",
+    recovery_available: true,
 
     defaults: ["jemalloc_defaults"],
 
