@@ -1,6 +1,3 @@
-#if !defined(__ANDROID__)
-#include "jemalloc_internal_defs_host.h"
-#else
 /* include/jemalloc/internal/jemalloc_internal_defs.h.  Generated from jemalloc_internal_defs.h.in by configure.  */
 #ifndef JEMALLOC_INTERNAL_DEFS_H_
 #define	JEMALLOC_INTERNAL_DEFS_H_
@@ -9,8 +6,8 @@
  * public APIs to be prefixed.  This makes it possible, with some care, to use
  * multiple allocators simultaneously.
  */
-#define JEMALLOC_PREFIX "je_"
-#define JEMALLOC_CPREFIX "JE_"
+/* #undef JEMALLOC_PREFIX */
+/* #undef JEMALLOC_CPREFIX */
 
 /*
  * JEMALLOC_PRIVATE_NAMESPACE is used as a prefix for all library-private APIs.
@@ -75,8 +72,7 @@
 /* #undef JEMALLOC_OSSPIN */
 
 /* Defined if syscall(2) is usable. */
-/* Syscalls are available in Android, but avoid them for security reasons. */
-/* #undef JEMALLOC_USE_SYSCALL */
+#define JEMALLOC_USE_SYSCALL
 
 /*
  * Defined if secure_getenv(3) is available.
@@ -89,7 +85,16 @@
 /* #undef JEMALLOC_HAVE_ISSETUGID */
 
 /* Defined if pthread_atfork(3) is available. */
-#define JEMALLOC_HAVE_PTHREAD_ATFORK 
+/* TODO(asmundak): if this is defined for host build, we get:
+ "~/prebuilts/clang/host/linux-x86/clang-r328903/bin/ld.lld: error: can't create dynamic relocation R_X86_64_32
+  against symbol: __dso_handle in readonly segment; recompile object files with -fPIC or pass '-Wl,-z,notext'
+  to allow text relocations in the output
+  >>> defined in prebuilts/gcc/linux-x86/host/x86_64-linux-glibc2.15-4.8/lib/gcc/x86_64-linux/4.8/crtbeginS.o
+  >>> referenced by pthread_atfork.c:57
+  >>>               pthread_atfork.o:(__pthread_atfork) in archive
+  >>>               prebuilts/gcc/linux-x86/host/x86_64-linux-glibc2.15-4.8/sysroot/usr/lib/libpthread.a"
+ */
+/* #undef JEMALLOC_HAVE_PTHREAD_ATFORK */
 
 /*
  * Defined if clock_gettime(CLOCK_MONOTONIC_COARSE, ...) is available.
@@ -130,7 +135,7 @@
 /* #undef JEMALLOC_MUTEX_INIT_CB */
 
 /* Non-empty if the tls_model attribute is supported. */
-#define JEMALLOC_TLS_MODEL 
+#define JEMALLOC_TLS_MODEL __attribute__((tls_model("initial-exec")))
 
 /* JEMALLOC_CC_SILENCE enables code that silences unuseful compiler warnings. */
 #define JEMALLOC_CC_SILENCE 
@@ -164,14 +169,13 @@
  * This makes it possible to allocate/deallocate objects without any locking
  * when the cache is in the steady state.
  */
-/* ANDROID: The tcache is enabled/disabled in the Makefile, not here. */
-/* #undef JEMALLOC_TCACHE */
+#define JEMALLOC_TCACHE 
 
 /*
  * JEMALLOC_DSS enables use of sbrk(2) to allocate chunks from the data storage
  * segment (DSS).
  */
-/* #undef JEMALLOC_DSS */
+#define JEMALLOC_DSS 
 
 /* Support memory filling (junk/zero/quarantine/redzone). */
 #define JEMALLOC_FILL 
@@ -217,7 +221,7 @@
 /* #undef JEMALLOC_MUNMAP */
 
 /* TLS is used to map arenas and magazine caches to threads. */
-/* #undef JEMALLOC_TLS */
+#define JEMALLOC_TLS 
 
 /*
  * Used to mark unreachable code to quiet "end of non-void" compiler warnings.
@@ -280,7 +284,7 @@
  * arguments to madvise(2).
  */
 /* ANDROID: Do not enable huge pages because it can increase PSS. */
-/* #undef JEMALLOC_THP */
+#define JEMALLOC_THP 
 
 /* Define if operating system has alloca.h header. */
 #define JEMALLOC_HAS_ALLOCA_H 1
@@ -308,22 +312,21 @@
 #define LG_SIZEOF_INTMAX_T 3
 
 /* glibc malloc hooks (__malloc_hook, __realloc_hook, __free_hook). */
-/* #undef JEMALLOC_GLIBC_MALLOC_HOOK */
+#define JEMALLOC_GLIBC_MALLOC_HOOK
 
 /* glibc memalign hook. */
-/* #undef JEMALLOC_GLIBC_MEMALIGN_HOOK */
+#define JEMALLOC_GLIBC_MEMALIGN_HOOK
 
 /* Adaptive mutex support in pthreads. */
-/* #undef JEMALLOC_HAVE_PTHREAD_MUTEX_ADAPTIVE_NP */
+#define JEMALLOC_HAVE_PTHREAD_MUTEX_ADAPTIVE_NP
 
 /*
  * If defined, jemalloc symbols are not exported (doesn't work when
  * JEMALLOC_PREFIX is not defined).
  */
-#define JEMALLOC_EXPORT 
+/* #undef JEMALLOC_EXPORT */
 
 /* config.malloc_conf options string. */
 #define JEMALLOC_CONFIG_MALLOC_CONF ""
 
 #endif /* JEMALLOC_INTERNAL_DEFS_H_ */
-#endif
