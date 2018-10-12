@@ -64,7 +64,7 @@ extern "C" {
  * these macro definitions.
  */
 #ifndef JEMALLOC_NO_RENAME
-#if defined(__ANDROID__)
+#if defined(__BIONIC__)
 #  define je_malloc_conf je_malloc_conf
 #  define je_malloc_message je_malloc_message
 #  define je_malloc je_malloc
