@@ -1,4 +1,7 @@
-#if !defined(__ANDROID__)
+/* Include cdefs to see if __BIONIC__ is set */
+#include <sys/cdefs.h>
+
+#if !defined(__BIONIC__)
 #include "jemalloc_internal_defs_host.h"
 #else
 /* include/jemalloc/internal/jemalloc_internal_defs.h.  Generated from jemalloc_internal_defs.h.in by configure.  */
