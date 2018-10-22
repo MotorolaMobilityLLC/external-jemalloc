@@ -2930,7 +2930,7 @@ jemalloc_postfork_child(void)
 
 /******************************************************************************/
 
-#if defined(__ANDROID__)
+#if defined(__BIONIC__)
 /* ANDROID extension */
 #include "android_je_iterate.c"
 #include "android_je_mallinfo.c"
