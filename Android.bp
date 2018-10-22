@@ -83,6 +83,9 @@ cc_defaults {
             ],
             product_variables: android_product_variables,
         },
+        linux_bionic: {
+            cflags: ["-DJEMALLOC_TCACHE"],
+        },
         linux_glibc: {
             enabled: true,
         },
